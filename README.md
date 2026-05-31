@@ -1,67 +1,181 @@
-<!-- 3D SVG header + compact project README for CareerFlow -->
+# CareerFlow - Online Learning Course Recommendation Platform
 
-<p align="center">
-    <svg width="820" height="220" viewBox="0 0 820 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="titleDesc">
-        <title id="titleDesc">CareerFlow — Modern Learning & Career Growth Platform</title>
-        <defs>
-            <linearGradient id="g1" x1="0" x2="1">
-                <stop offset="0%" stop-color="#7c3aed" />
-                <stop offset="100%" stop-color="#06b6d4" />
-            </linearGradient>
-            <filter id="f1" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox">
-                <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#0b1220" flood-opacity="0.14"/>
-            </filter>
-            <radialGradient id="shine" cx="0.2" cy="0.2" r="1">
-                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
-                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-            </radialGradient>
-        </defs>
+A full-stack MERN learning platform where users can discover courses, enroll, track lesson progress, and get personalized recommendations.
 
-        <!-- 3D title layers: shadow, base, highlight -->
-        <g transform="translate(40,40)">
-            <text x="0" y="92" font-family="Sora, Inter, system-ui, -apple-system, 'Segoe UI', Roboto" font-weight="900" font-size="84" fill="#071020" opacity="0.18" transform="skewX(-12)">CareerFlow</text>
-            <text x="0" y="80" font-family="Sora, Inter, system-ui, -apple-system, 'Segoe UI', Roboto" font-weight="900" font-size="84" fill="url(#g1)" filter="url(#f1)" transform="skewX(-12)">CareerFlow</text>
-            <text x="0" y="80" font-family="Sora, Inter, system-ui, -apple-system, 'Segoe UI', Roboto" font-weight="900" font-size="84" fill="url(#shine)" transform="skewX(-12) translate(6,-6)" opacity="0.22"/>
-        </g>
+## Features
 
-        <!-- subtitle -->
-        <g transform="translate(40,150)">
-            <text x="0" y="0" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto" font-size="16" fill="#6b7280">Premium learning OS — recommendations, progress, and beautiful analytics</text>
-        </g>
-    </svg>
-</p>
+- JWT-based authentication (register, login, profile)
+- Course catalog with filtering, sorting, pagination, and featured courses
+- Enrollment system with duplicate-enrollment protection
+- Progress tracking with completion percentage and time spent
+- Gamification with points, streaks, and leaderboard
+- Personalized recommendation engine based on interests, skills, and level
+- Dashboard-ready summary APIs for learner analytics
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+## Tech Stack
 
-Short, 3D-styled README for the CareerFlow project — a polished MERN learning platform built for portfolio impact.
+### Frontend
+- React 18
+- React Router DOM
+- Tailwind CSS
+- Axios
+- Framer Motion
+- Recharts
 
-## Quick Links
+### Backend
+- Node.js
+- Express.js
+- MongoDB + Mongoose
+- JWT (jsonwebtoken)
+- bcryptjs
 
-- **Frontend:** `client/` — React app (port 3000)
-- **Backend:** `server/` — Express API (port configured in `server/.env`)
-- **Seed data:** `server/utils/seeder.js` (creates demo user + sample courses)
+## Project Structure
 
-## Run (Quick)
+```text
+Project-2/
+  client/   # React frontend
+  server/   # Express + MongoDB backend
+  docs/     # project notes and interview prep docs
+```
+
+## Prerequisites
+
+- Node.js 18+ (recommended)
+- npm 9+
+- MongoDB (local or Atlas)
+
+## Environment Variables
+
+Create a `.env` file in `server/`:
+
+```env
+MONGO_URI=mongodb://localhost:27017/careerflow
+JWT_SECRET=your_super_secret_key
+PORT=5001
+CLIENT_URL=http://localhost:3000
+```
+
+Notes:
+- `PORT=5001` is recommended because the frontend proxy points to `http://localhost:5001`.
+- If you use MongoDB Atlas, set `MONGO_URI` to your Atlas connection string.
+
+Optional: create `client/.env` only if needed.
+
+```env
+REACT_APP_API_URL=/api
+```
+
+## Installation
+
+From the project root:
 
 ```bash
-# start backend
 cd server
 npm install
-cp .env.example .env
-# edit .env then
-npm run dev
 
-# seed (optional)
-node utils/seeder.js
-
-# start frontend
 cd ../client
 npm install
+```
+
+## Run the App (Development)
+
+Use two terminals.
+
+Terminal 1 - backend:
+
+```bash
+cd server
+npm run dev
+```
+
+Terminal 2 - frontend:
+
+```bash
+cd client
 npm start
 ```
 
+App URLs:
+- Frontend: `http://localhost:3000`
+- Backend health: `http://localhost:5001/api/health`
+
+## Seed Sample Data
+
+The backend seeds courses automatically on startup when the course collection is empty.
+
+You can also seed manually:
+
+```bash
+cd server
+npm run seed
+```
+
+Demo user created by seeder:
+- Email: `demo@careerflow.com`
+- Password: `demo1234`
+
+## API Overview
+
+Base URL: `/api`
+
+### Auth
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /auth/me` (protected)
+- `PUT /auth/profile` (protected)
+
+### Courses
+- `GET /courses`
+- `GET /courses/featured`
+- `GET /courses/:id`
+- `POST /courses` (protected, admin only)
+
+Supported query params for `GET /courses`:
+- `category`
+- `level`
+- `search`
+- `sort` (`popular`, `rating`, `newest`, `price`)
+- `page`
+- `limit`
+
+### Enrollments
+- `POST /enrollments/:courseId` (protected)
+- `GET /enrollments/my` (protected)
+- `GET /enrollments/check/:courseId` (protected)
+
+### Progress
+- `GET /progress/summary` (protected)
+- `GET /progress/:courseId` (protected)
+- `PUT /progress/:courseId` (protected)
+
+### Recommendations
+- `GET /recommendations` (protected)
+
+### Users
+- `GET /users/leaderboard` (protected)
+
+## Recommendation Logic (High Level)
+
+Each unenrolled course is scored using:
+- Interest/category/tag match
+- Skill/tag overlap
+- Level match
+- Popularity and rating boosts
+- Featured-course boost
+
+Top-ranked courses are returned, along with trending and category-based suggestions.
+
+## Available Scripts
+
+### server/package.json
+- `npm start` - run backend with Node
+- `npm run dev` - run backend with nodemon
+- `npm run seed` - seed sample courses and demo user
+
+### client/package.json
+- `npm start` - run frontend development server
+- `npm run build` - create production build
+
 ## License
 
-This repository is licensed under the MIT License — see the `LICENSE` file for details.
-
-Made with ❤ — contributions welcome.
+This project is licensed under the terms in the `LICENSE` file.
